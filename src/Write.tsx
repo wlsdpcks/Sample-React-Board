@@ -3,11 +3,25 @@ import { Button } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import axios from "axios";
 
-class Write extends Component {
+interface IProps {
+  isModifyMode: boolean;
+  boardId: number;
+  handleCancel: any;
+}
+class Write extends Component<IProps> {
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      title: "",
+      content: "",
+      isRendered: false,
+    };
+  }
+
   state = {
-    isModifyMode: false,
     title: "",
     content: "",
+    isRendered: false,
   };
 
   write = () => {
@@ -29,14 +43,35 @@ class Write extends Component {
       .post("http://localhost:8000/update", {
         title: this.state.title,
         content: this.state.content,
+        id: this.props.boardId,
       })
       .then((res) => {
-        console.log(res);
+        this.setState({
+          title: "",
+          content: "",
+        });
+        this.props.handleCancel();
       })
       .catch((e) => {
         console.error(e);
       });
   };
+  detail = () => {
+    axios
+      .get(`http://localhost:8000/detail?id=${this.props.boardId}`)
+      .then((res) => {
+        if (res.data.length > 0) {
+          this.setState({
+            title: res.data[0].BOARD_TITLE,
+            content: res.data[0].BOARD_CONTENT,
+          });
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  };
+
   // eslint-disable-next-line
   handleChange = (e: any) => {
     this.setState({
@@ -53,6 +88,8 @@ class Write extends Component {
             <Form.Label>제목</Form.Label>
             <Form.Control
               type="text"
+              name="title"
+              value={this.state.title}
               onChange={this.handleChange}
               placeholder="제목을 입력하세요."
             />
@@ -61,6 +98,8 @@ class Write extends Component {
             <Form.Label>내용</Form.Label>
             <Form.Control
               as="textarea"
+              name="content"
+              value={this.state.content}
               onChange={this.handleChange}
               placeholder="내용을 입력하세요."
             />
@@ -68,11 +107,13 @@ class Write extends Component {
           {/* 작성완료 버튼 event */}
           <Button
             variant="info"
-            onClick={this.state.isModifyMode ? this.write : this.update}
+            onClick={this.props.isModifyMode ? this.update : this.write}
           >
             작성완료
           </Button>
-          <Button variant="secondary">취소</Button>
+          <Button variant="secondary" onClick={this.props.handleCancel}>
+            취소
+          </Button>
         </Form>
       </div>
     );

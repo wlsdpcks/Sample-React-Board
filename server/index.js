@@ -38,7 +38,7 @@ app.post("/insert", (req, res) => {
   var content = req.body.content;
 
   const sqlQuery =
-    "INSERT INTO BOARD (BOARD_TITLE, BOARD_CONTENT, REGISTER_ID) FROM (?,?,artistJay);";
+    "INSERT INTO BOARD (BOARD_TITLE, BOARD_CONTENT, REGISTER_ID) VALUE (?,?,artistJay);";
   db.query(sqlQuery, [title, content], (err, result) => {
     res.send(result);
   });
@@ -49,7 +49,7 @@ app.post("/update", (req, res) => {
   var content = req.body.content;
 
   const sqlQuery =
-    "UPDATE BOARD SET (BOARD_TITLE = ?, BOARD_CONTENT = ?, UPDATER_ID) FROM (?,?,artistJay)";
+    "UPDATE BOARD SET (BOARD_TITLE = ?, BOARD_CONTENT = ?, UPDATER_ID) VALUE (?,?,artistJay)";
   db.query(sqlQuery, [title, content], (err, result) => {
     res.send(result);
   });

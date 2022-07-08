@@ -8,16 +8,27 @@ const Board = ({
   title,
   registerId,
   registerDate,
+  props, // Board메서드에서 컴포넌트 state값을 관리하기 위해서 props를 추가
 }: {
   id: number;
   title: string;
   registerId: string;
   registerDate: string;
+  props: any; // Board메서드에서 컴포넌트 state값을 관리하기 위해서 props를 추가
 }) => {
   return (
     <tr>
       <td>
-        <input type="checkbox"></input>
+        <input
+          type="checkbox"
+          value={id}
+          onChange={(e) => {
+            props.onCheckboxChange(
+              e.currentTarget.checked,
+              e.currentTarget.value
+            );
+          }}
+        ></input>
       </td>
       <td>{id}</td>
       <td>{title}</td>
@@ -26,12 +37,26 @@ const Board = ({
     </tr>
   );
 };
+interface IProps {
+  isComplete: boolean;
+  handleModify: any;
+  renderComplete: any;
+}
 /**
  * BoardList class
  */
-class BoardList extends Component {
+class BoardList extends Component<IProps> {
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      boardList: [],
+      checkList: [],
+    };
+  }
+
   state = {
     boardList: [],
+    checkList: [],
   };
 
   getList = () => {
@@ -49,6 +74,21 @@ class BoardList extends Component {
   };
   /**
    */
+  // eslint-disable-next-line
+  onCheckboxChange = (checked: boolean, id: any) => {
+    const list: Array<string> = this.state.checkList.filter((v) => {
+      return v != id;
+    });
+
+    if (checked) {
+      list.push(id);
+    }
+
+    this.setState({
+      checkList: list,
+    });
+  };
+
   componentDidMount() {
     this.getList();
   }
@@ -79,6 +119,7 @@ class BoardList extends Component {
                     registerId={v.REGISTER_ID}
                     registerDate={v.REGISTER_DATE}
                     key={v.BOARD_ID}
+                    props={this}
                   />
                 );
               })
@@ -86,7 +127,14 @@ class BoardList extends Component {
           </tbody>
         </Table>
         <Button variant="info">글쓰기</Button>
-        <Button variant="secondary">수정하기</Button>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            this.props.handleModify(this.state.checkList);
+          }}
+        >
+          수정하기
+        </Button>
         <Button variant="danger">삭제하기</Button>
       </div>
     );
