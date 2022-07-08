@@ -54,3 +54,13 @@ app.post("/update", (req, res) => {
     res.send(result);
   });
 });
+
+app.post("/delete", (req, res) => {
+  const id = req.body.boardIdList;
+
+  const sqlQuery = "DELETE FROM BOARD WHERE BOARD_ID IN (?)";
+  db.query(sqlQuery, [id], (err, result) => {
+    console.log(err);
+    res.send(result);
+  });
+});
